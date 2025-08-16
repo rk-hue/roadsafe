@@ -1,0 +1,32 @@
+[
+  {
+    "id": "9eOMXe2lPnfDktCmLqyQ",
+    "type": "squirrel",
+    "location": {
+      "lat": 40.08687007005511,
+      "lng": -75.70049964400563
+    },
+    "time": "2025-05-14T00:39:51.188Z",
+    "status": "alive"
+  },
+  {
+    "id": "Fm0NPnUEIODv5bsZO6JD",
+    "type": "deer",
+    "location": {
+      "lat": 40.08680706145745,
+      "lng": -75.70060144691585
+    },
+    "time": "2025-05-14T00:32:24.318Z",
+    "status": "dead"
+  },
+  {
+    "id": "J8FVAWrGQfPbAGsWLIha",
+    "type": "raccoon",
+    "location": {
+      "lat": 40.086893815344965,
+      "lng": -75.70058898040189
+    },
+    "time": "2025-05-14T00:43:18.816Z",
+    "status": "dead"
+  }
+]

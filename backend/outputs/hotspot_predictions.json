@@ -1,0 +1,21 @@
+[
+    {
+      "location": "Route 30 & Main St",
+      "lat": 40.042,
+      "lng": -76.301,
+      "riskLevel": "High"
+    },
+    {
+      "location": "Pine Creek Rd",
+      "lat": 40.054,
+      "lng": -76.312,
+      "riskLevel": "Medium"
+    },
+    {
+      "location": "Valley Highway Exit 14",
+      "lat": 40.065,
+      "lng": -76.325,
+      "riskLevel": "Low"
+    }
+  ]
+  
