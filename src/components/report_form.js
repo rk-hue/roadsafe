@@ -29,21 +29,30 @@ const ReportForm = () => {
         description: weatherData.weather?.[0]?.description,
       };
 
-      // 2. Build the report
+      // 2. Build the report with time data
+      const now = new Date();
+      const jsDay = now.getDay(); // Sunday = 0, Monday = 1, ..., Saturday = 6
+      const weekday = jsDay === 0 ? 7 : jsDay; // Convert Sunday (0) → 7
+
       const report = {
         type: animalType,
         location: userLocation,
-        time: new Date().toISOString(),
+        time: now.toISOString(),
+        hour: now.getHours(),           // 0–23
+        dayOfWeek: weekday,             // 1=Mon ... 7=Sun
+        month: now.getMonth() + 1,      // 1–12
         status,
-        weather, // ✅ Weather data added
+        weather,
       };
 
       console.log('Submitting report:', report);
 
-      // 3. Submit to Firestore
-      await addDoc(collection(db, 'reports'), report);
-      alert('✅ Report submitted successfully!');
-      console.log('✅ Report saved to Firestore.');
+      // 3. Submit to Firestore — choose collection based on status
+      const targetCollection = status === 'dead' ? 'deadReports' : 'aliveReports';
+      await addDoc(collection(db, targetCollection), report);
+
+      alert(`✅ Report submitted to "${targetCollection}" successfully!`);
+      console.log(`✅ Report saved to Firestore collection "${targetCollection}".`);
 
       // 4. Reset form
       setAnimalType('');

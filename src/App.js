@@ -16,6 +16,15 @@ import { getFirestore, collection, getDocs } from "firebase/firestore";
 import { prepareFeatures } from "./utils/prepareFeatures";
 import haversine from "haversine-distance";
 
+
+// ---------- Backend base URL (configure via .env) ----------
+const BASE_URL = process.env.REACT_APP_API_URL || "https://roadsafe-app.onrender.com";
+// If your predict endpoint isn’t at "/", set REACT_APP_PREDICT_PATH (e.g. "/predict")
+const PREDICT_PATH = process.env.REACT_APP_PREDICT_PATH || "";
+const PREDICT_URL = `${BASE_URL}${PREDICT_PATH}`;
+console.log("[RoadSafe] Using backend:", PREDICT_URL);
+// -----------------------------------------------------------
+
 // Fix default Leaflet marker icons
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -37,14 +46,17 @@ async function getHotspotRisk({ latitude, longitude, hour, month, day }) {
     const features = prepareFeatures(latitude, longitude);
     console.log("Sending prediction request with features:", features);
 
-    const response = await fetch("http://127.0.0.1:8000/predict_hotspot", {
+    const response = await fetch(PREDICT_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(features),
     });
 
     if (!response.ok) {
-      throw new Error(`Server responded with status ${response.status}`);
+      const text = await response.text().catch(() => "");
+      throw new Error(
+        `Server responded with status ${response.status} ${response.statusText} — ${text}`
+      );
     }
 
     const data = await response.json();
@@ -79,7 +91,7 @@ function MapClickHandler({ addPredictionMarker }) {
       const now = new Date();
       const hour = now.getHours();
       const month = now.getMonth() + 1;
-      const day = now.getDay();
+      const day = now.getDay(); // 0-6 (Sun-Sat)
 
       const prediction = await getHotspotRisk({
         latitude: lat,
@@ -137,7 +149,7 @@ function FloatingSearchControl({ onShowRoute, onShowHotspot }) {
     input.style.borderRadius = "6px";
     input.style.outline = "none";
 
-    // Show Route Button
+    // Show Route Buttonc
     const btnRoute = L.DomUtil.create("button", "", container);
     btnRoute.innerHTML = "Show Route";
     btnRoute.style.padding = "5px 12px";
@@ -259,7 +271,9 @@ function App() {
       sampled.push(latlngs[latlngs.length - 1]);
     }
 
-    console.log(`Sampled ${sampled.length} points from route of length ${latlngs.length}`);
+    console.log(
+      `Sampled ${sampled.length} points from route of length ${latlngs.length}`
+    );
 
     return sampled;
   }
@@ -312,14 +326,22 @@ function App() {
 
     const predictions = await Promise.all(
       sampledPoints.map(async ([lat, lng]) => {
-        const pred = await getHotspotRisk({ latitude: lat, longitude: lng, hour, month, day });
+        const pred = await getHotspotRisk({
+          latitude: lat,
+          longitude: lng,
+          hour,
+          month,
+          day,
+        });
         return pred ?? { probability: 0 };
       })
     );
 
     console.log("Sampled points and predictions:");
     sampledPoints.forEach((pt, i) => {
-      console.log(`Point ${i}: [${pt[0]}, ${pt[1]}], prob: ${predictions[i].probability}`);
+      console.log(
+        `Point ${i}: [${pt[0]}, ${pt[1]}], prob: ${predictions[i].probability}`
+      );
     });
 
     const segments = [];
@@ -380,7 +402,13 @@ function App() {
     const month = now.getMonth() + 1;
     const day = now.getDay();
 
-    const prediction = await getHotspotRisk({ latitude: lat, longitude: lng, hour, month, day });
+    const prediction = await getHotspotRisk({
+      latitude: lat,
+      longitude: lng,
+      hour,
+      month,
+      day,
+    });
 
     if (!prediction) {
       alert("Failed to get hotspot prediction for this location.");
