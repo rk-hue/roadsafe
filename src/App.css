@@ -26,6 +26,12 @@ h2 {
   color: #467d5e;
 }
 
+h3 {
+  font-size: 1.5rem;
+  text-align: center;
+  color: #467d5e;
+}
+
 p {
   text-align: center;
   font-size: 1.0rem;
@@ -217,11 +223,12 @@ p {
 }
 
 .community-action-form {
-  font-family: 'DM Sans', sans-serif;
+  font-family: dmsans;
   background: #fefefe;
   padding: 20px;
   border-radius: 12px;
   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  color:#467d5e
 }
 
 .main-checkbox {
@@ -229,17 +236,22 @@ p {
   font-weight: 500;
   margin-bottom: 15px;
   cursor: pointer;
+  font-family: dmsans;
+  
 }
 
 .petition-details {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  font-family: dmasans;
+  
 }
 
 .checkbox-group {
   display: flex;
   gap: 15px;
+  
 }
 
 .checkbox-group label {
@@ -247,14 +259,26 @@ p {
   align-items: center;
   gap: 5px;
   cursor: pointer;
+  font-family: dmsans;
+  
 }
 
 input[type="text"] {
-  padding: 8px 10px;
+  padding: 0.8rem 1.2rem;
+  font-size: 1rem;
   border-radius: 8px;
-  border: 1px solid #ccc;
-  font-family: 'DM Sans', sans-serif;
+  border: 2px solid #80c49e;
+  background-color: #eaf5ef;
+  color: #467d5e;
   outline: none;
+  transition: all 0.2s ease;
+  font-family: dmsans;
+}
+
+input[type="text"]:focus {
+  background-color: #d1ead3;
+  font-family: dmsans;
+  border-color: #467d5e;
 }
 
 .action-button {
@@ -285,4 +309,8 @@ input[type="text"] {
   border-radius: 12px;
   box-shadow: 0 6px 12px rgba(0,0,0,0.1);
   color: black;
+}
+
+.petition-leaderbaord {
+  color:#467d5e;
 }

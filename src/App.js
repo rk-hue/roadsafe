@@ -119,87 +119,6 @@ function MapClickHandler({ addPredictionMarker }) {
   return null;
 }
 
-// New Floating Search Control with two buttons
-function FloatingSearchControl({ onShowRoute, onShowHotspot }) {
-  const map = useMapEvents({}); // just to attach control to map
-  const [inputValue, setInputValue] = useState("");
-
-  useEffect(() => {
-    const container = L.DomUtil.create("div", "leaflet-bar leaflet-control");
-
-    container.style.position = "absolute";
-    container.style.top = "10px";
-    container.style.left = "50%";
-    container.style.transform = "translateX(-50%)";
-    container.style.zIndex = 1000;
-    container.style.background = "white";
-    container.style.padding = "5px 10px";
-    container.style.borderRadius = "8px";
-    container.style.boxShadow = "0 2px 6px rgba(0,0,0,0.3)";
-    container.style.display = "flex";
-    container.style.alignItems = "center";
-    container.style.gap = "6px";
-
-    // Input
-    const input = L.DomUtil.create("input", "", container);
-    input.type = "text";
-    input.placeholder = "Enter destination address";
-    input.style.width = "250px";
-    input.style.padding = "4px 6px";
-    input.style.border = "1px solid #ccc";
-    input.style.borderRadius = "6px";
-    input.style.outline = "none";
-
-    // Show Route Buttonc
-    const btnRoute = L.DomUtil.create("button", "", container);
-    btnRoute.innerHTML = "Show Route";
-    btnRoute.style.padding = "5px 12px";
-    btnRoute.style.border = "none";
-    btnRoute.style.background = "#007bff";
-    btnRoute.style.color = "white";
-    btnRoute.style.borderRadius = "6px";
-    btnRoute.style.cursor = "pointer";
-
-    // Show Hotspot Button
-    const btnHotspot = L.DomUtil.create("button", "", container);
-    btnHotspot.innerHTML = "Show Hotspot";
-    btnHotspot.style.padding = "5px 12px";
-    btnHotspot.style.border = "none";
-    btnHotspot.style.background = "#28a745";
-    btnHotspot.style.color = "white";
-    btnHotspot.style.borderRadius = "6px";
-    btnHotspot.style.cursor = "pointer";
-
-    L.DomEvent.disableClickPropagation(container);
-    L.DomEvent.disableScrollPropagation(container);
-
-    input.oninput = (e) => {
-      setInputValue(e.target.value);
-    };
-
-    btnRoute.onclick = () => {
-      if (!input.value) return alert("Please enter an address.");
-      onShowRoute(input.value);
-    };
-
-    btnHotspot.onclick = () => {
-      if (!input.value) return alert("Please enter an address.");
-      onShowHotspot(input.value);
-    };
-
-    map.getContainer().appendChild(container);
-
-    // sync React state input with DOM input (on first render)
-    input.value = inputValue;
-
-    return () => {
-      if (container.parentNode) container.parentNode.removeChild(container);
-    };
-  }, [map, onShowRoute, onShowHotspot, inputValue]);
-
-  return null;
-}
-
 function App() {
   const { userLocation, setUserLocation } = useAppContext();
   const [reports, setReports] = useState([]);
@@ -494,14 +413,19 @@ function App() {
   
             {predictionMarkers.map((marker, idx) => {
               const alertRadiusMeters = probabilityToRadius(marker.probability);
+              const colorMap = {
+                red: "#de6868",
+                orange: "#de9168",
+                blue: "#6895de"
+              };
               return (
                 <Circle
                   key={`prediction-${idx}`}
                   center={[marker.lat, marker.lng]}
                   radius={alertRadiusMeters}
                   pathOptions={{
-                    color: marker.color,
-                    fillColor: marker.color,
+                    color: colorMap[marker.color],
+                    fillColor: colorMap[marker.color],
                     fillOpacity: 0.3,
                   }}
                 >
