@@ -1,18 +1,35 @@
+@font-face {
+  font-family: 'dmsans'; /* Choose a unique name for your font */
+  src: url('fonts/dmsans-bold.ttf') format('truetype'),
+  url('fonts/dmsans-font.ttf') format('truetype'),
+  url('fonts/dmsans-light.ttf') format('truetype');
+  font-weight: normal; /* Define font weight if applicable (e.g., normal, bold, 300, 700) */
+  font-style: normal;  /* Define font style if applicable (e.g., normal, italic) */
+  /* You can add more src lines for different font variations (e.g., bold, italic) */
+}
+
 body {
   margin: 0;
-  font-family: sans-serif;
+  font-family: dmsans;
   background: white;
 }
 
 h1 {
-  font-size: 1.5rem;
+  font-size: 3.0rem;
   text-align: center;
-  padding: 1rem;
+  color: #467d5e;
+}
+
+h2 {
+  font-size: 2.0rem;
+  text-align: center;
+  color: #467d5e;
 }
 
 p {
   text-align: center;
-  padding: 0 1rem;
+  font-size: 1.0rem;
+  color: #609e7b;
 }
 
 .leaflet-container {
@@ -27,4 +44,245 @@ p {
   .leaflet-container {
     height: 300px !important;
   }
+}
+
+.report-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 2rem auto;
+  padding: 2rem;
+  max-width: 700px; /* make it wide enough for 2 buttons */
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+  color: black;
+}
+
+/* Animal buttons container */
+.animal-buttons {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* 2 buttons per row */
+  gap: 1rem;
+  margin: 1rem 0;
+  justify-items: stretch; /* make buttons fill columns */
+  align-items: stretch;   /* make buttons same height */
+}
+
+/* Style the buttons */
+.animal-buttons button,
+.submit-button {
+  padding: 0.8rem 1.5rem;
+  font-size: 1.2rem;
+  border-radius: 8px;
+  border: 2px solid #80c49e;
+  background-color: #80c49e;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: dmsans;
+  text-align: center;
+  margin: 0;
+  width: 100%; /* fill the grid column */
+  box-sizing: border-box;
+}
+
+/* Highlight selected button */
+.animal-buttons button.selected {
+  background-color: #467d5e;
+  border-color: #467d5e;
+}
+
+/* Hover effect */
+.animal-buttons button:hover,
+.submit-button:hover {
+  background-color: #609e7b;
+  border-color: #609e7b;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Responsive: stack on small screens */
+@media (max-width: 500px) {
+  .animal-buttons {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Status select */
+.status-select {
+  margin: 1rem 0;
+  text-align: center;
+  font-family: dmsans;
+}
+
+.status-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.status-button {
+  padding: 0.8rem 1.5rem;
+  font-size: 1rem;
+  border-radius: 8px;
+  border: 2px solid #80c49e;
+  background-color: #80c49e;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: dmsans;
+}
+
+.status-button.selected {
+  background-color: #467d5e !important;
+  border-color: #467d5e !important;
+}
+
+.status-button:hover {
+  background-color: #609e7b;
+  border-color: #609e7b;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* ---------- Destination Search Panel ---------- */
+.map-and-panel {
+  display: flex;
+  gap: 20px;
+  height: 500px; /* fixed height */
+}
+
+/* Map container */
+.map-container {
+  flex: 3; /* 75% width */
+}
+
+.destination-panel {
+  flex: 1;
+  padding: 20px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 12px;
+  border: 1px solid #ccc;
+  border-radius: 12px;
+  background-color: #ffffff;
+  font-family: dmsans;
+}
+
+.destination-panel h3 {
+  margin: 0;
+  color: #467d5e;
+  font-size: 1.25rem;
+  text-align: center;
+  font-family: dmsans;
+}
+
+.destination-panel input {
+  padding: 0.8rem 1.2rem;
+  font-size: 1rem;
+  border-radius: 8px;
+  border: 2px solid #80c49e;
+  background-color: #eaf5ef;
+  color: #467d5e;
+  outline: none;
+  transition: all 0.2s ease;
+  font-family: dmsans;
+}
+
+.destination-panel input:focus {
+  background-color: #d1ead3;
+  font-family: dmsans;
+  border-color: #467d5e;
+}
+
+.destination-panel button {
+  padding: 0.8rem 1.5rem;
+  font-size: 1.1rem;
+  border-radius: 8px;
+  border: 2px solid #80c49e;
+  background-color: #80c49e;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: dmsans;
+  text-align: center;
+}
+
+.destination-panel button:hover {
+  background-color: #609e7b;
+  border-color: #609e7b;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.community-action-form {
+  font-family: 'DM Sans', sans-serif;
+  background: #fefefe;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.main-checkbox {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 15px;
+  cursor: pointer;
+}
+
+.petition-details {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.checkbox-group {
+  display: flex;
+  gap: 15px;
+}
+
+.checkbox-group label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+}
+
+input[type="text"] {
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-family: 'DM Sans', sans-serif;
+  outline: none;
+}
+
+.action-button {
+  margin-top: 10px;
+  padding: 8px 16px;
+  background-color: #80c49e; /* green like your other buttons */
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-family: dmsans;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.action-button:hover {
+  background-color: #609e7b;
+}
+
+.community-action-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 2rem auto;
+  padding: 2rem;
+  max-width: 700px; /* make it wide enough for 2 buttons */
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+  color: black;
 }

@@ -3,12 +3,12 @@ import { useAppContext } from '../context/AppContext';
 import { db } from '../services/firebase';
 import { collection, addDoc } from 'firebase/firestore';
 
-const WEATHER_API_KEY = '6862ae0671e10a322eefafcd55b3034b'; // 🔑 Replace this with your actual OpenWeatherMap API key
+const WEATHER_API_KEY = '6862ae0671e10a322eefafcd55b3034b'; // Replace with your actual key
 
 const ReportForm = () => {
   const { userLocation } = useAppContext();
   const [animalType, setAnimalType] = useState('');
-  const [status, setStatus] = useState('alive'); // 'alive' or 'dead'
+  const [status, setStatus] = useState(''); // 'alive' or 'dead'
 
   const handleSubmit = async () => {
     if (!animalType || !userLocation) {
@@ -17,7 +17,7 @@ const ReportForm = () => {
     }
 
     try {
-      // 1. Fetch weather data from OpenWeatherMap
+      // 1. Fetch weather data
       const weatherRes = await fetch(
         `https://api.openweathermap.org/data/2.5/weather?lat=${userLocation.lat}&lon=${userLocation.lng}&appid=${WEATHER_API_KEY}&units=imperial`
       );
@@ -29,25 +29,25 @@ const ReportForm = () => {
         description: weatherData.weather?.[0]?.description,
       };
 
-      // 2. Build the report with time data
+      // 2. Build the report
       const now = new Date();
-      const jsDay = now.getDay(); // Sunday = 0, Monday = 1, ..., Saturday = 6
+      const jsDay = now.getDay(); // 0-6
       const weekday = jsDay === 0 ? 7 : jsDay; // Convert Sunday (0) → 7
 
       const report = {
         type: animalType,
         location: userLocation,
         time: now.toISOString(),
-        hour: now.getHours(),           // 0–23
-        dayOfWeek: weekday,             // 1=Mon ... 7=Sun
-        month: now.getMonth() + 1,      // 1–12
+        hour: now.getHours(),
+        dayOfWeek: weekday,
+        month: now.getMonth() + 1,
         status,
         weather,
       };
 
       console.log('Submitting report:', report);
 
-      // 3. Submit to Firestore — choose collection based on status
+      // 3. Submit to Firestore
       const targetCollection = status === 'dead' ? 'deadReports' : 'aliveReports';
       await addDoc(collection(db, targetCollection), report);
 
@@ -64,28 +64,39 @@ const ReportForm = () => {
   };
 
   return (
-    <div>
+    <div className="report-container">
       <h2>Report Wildlife Hazard</h2>
+      <p>Select An Animal</p>
 
-      <div>
-        <p>Select an animal:</p>
+      <div className="animal-buttons">
         <button onClick={() => setAnimalType('deer')} className={animalType === 'deer' ? 'selected' : ''}>🦌 Deer</button>
-        <button onClick={() => setAnimalType('raccoon')} className={animalType === 'raccoon' ? 'selected' : ''}>🦝 Raccoon</button>
-        <button onClick={() => setAnimalType('opossum')} className={animalType === 'opossum' ? 'selected' : ''}>🦡 Opossum</button>
-        <button onClick={() => setAnimalType('squirrel')} className={animalType === 'squirrel' ? 'selected' : ''}>🐿 Squirrel</button>
+        <button onClick={() => setAnimalType('bird')} className={animalType === 'bird' ? 'selected' : ''}>🐦 Bird</button>
+        <button onClick={() => setAnimalType('bigRodent')} className={animalType === 'bigRodent' ? 'selected' : ''}>🦝 Raccoon, Groundhog, etc.</button>
+        <button onClick={() => setAnimalType('smallRodent')} className={animalType === 'smallRodent' ? 'selected' : ''}>🐿 Small Rodent</button>
+        <button onClick={() => setAnimalType('dogOrCat')} className={animalType === 'dogOrCat' ? 'selected' : ''}>🐕 Dog/Cat</button>
+        <button onClick={() => setAnimalType('other')} className={animalType === 'other' ? 'selected' : ''}>Other</button>
       </div>
 
-      <div>
-        <label htmlFor="status">Status:</label>
-        <select id="status" value={status} onChange={(e) => setStatus(e.target.value)}>
-          <option value="alive">Alive</option>
-          <option value="dead">Dead</option>
-        </select>
+      <div className="status-select">
+        <p>Status of the animal:</p>
+        <div className="status-buttons">
+          <button
+            onClick={() => setStatus('alive')}
+            className={`status-button ${status === 'alive' ? 'selected' : ''}`}
+          >
+            Alive
+          </button>
+          <button
+            onClick={() => setStatus('dead')}
+            className={`status-button ${status === 'dead' ? 'selected' : ''}`}
+          >
+            Dead
+          </button>
+        </div>
       </div>
 
-      <br />
+      <button onClick={handleSubmit} className="submit-button">📍 Submit Report</button>
 
-      <button onClick={handleSubmit}>📍 Submit Report</button>
     </div>
   );
 };

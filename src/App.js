@@ -15,7 +15,8 @@ import L from "leaflet";
 import { getFirestore, collection, getDocs } from "firebase/firestore";
 import { prepareFeatures } from "./utils/prepareFeatures";
 import haversine from "haversine-distance";
-
+import "./App.css";
+import CommunityVoting from "./community_voting";
 
 // ---------- Backend base URL (configure via .env) ----------
 const BASE_URL = process.env.REACT_APP_API_URL || "https://roadsafe-app.onrender.com";
@@ -435,81 +436,138 @@ function App() {
     <div>
       <h1>RoadSafe Wildlife</h1>
       <p>Protecting animals. Saving lives. One road at a time.</p>
-
-      <ReportForm />
-
-      <MapContainer
-        center={[userLocation.lat, userLocation.lng]}
-        zoom={8}
-        style={{ height: "500px", width: "100%", marginTop: "20px" }}
+      <h2>Real-time Crash Prediction</h2>
+  
+      {/* Flex container: left = map, right = controls */}
+      <div
+        style={{
+          display: "flex",
+          width: "75vw",           // 75% of the screen width
+          height: "400px",         // fixed height for the container
+          marginTop: "20px",
+          marginLeft: "auto",
+          marginRight: "auto",     // center the container
+          marginBottom: "40px"
+        }}
       >
-        <TileLayer
-          attribution="&copy; OpenStreetMap contributors"
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
-
-        <FloatingSearchControl
-          onShowRoute={handleAddressSearch}
-          onShowHotspot={handleShowHotspot}
-        />
-
-        <MapClickHandler addPredictionMarker={addPredictionMarker} />
-
-        <Marker position={[userLocation.lat, userLocation.lng]}>
-          <Popup>You are here</Popup>
-        </Marker>
-
-        {reports
-          .sort((a, b) => new Date(a.time) - new Date(b.time))
-          .map((report) => (
-            <Marker
-              key={report.id}
-              position={[report.location.lat, report.location.lng]}
-            >
-              <Popup>
-                <strong>{report.type}</strong>
-                <br />
-                {report.status}
-                <br />
-                {new Date(report.time).toLocaleString()}
-              </Popup>
+        {/* LEFT PANEL: map */}
+        <div
+          style={{
+            flex: "3",             // 75% of container width (3 / 4)
+            border: "1px solid #ccc",
+            borderRadius: "8px",
+            marginRight: "10px",
+          }}
+        >
+          <MapContainer
+            center={[userLocation.lat, userLocation.lng]}
+            zoom={8}
+            style={{ height: "100%", width: "100%" }} // fill left panel completely
+          >
+            <TileLayer
+              attribution="&copy; OpenStreetMap contributors"
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+  
+            <MapClickHandler addPredictionMarker={addPredictionMarker} />
+  
+            <Marker position={[userLocation.lat, userLocation.lng]}>
+              <Popup>You are here</Popup>
             </Marker>
-          ))}
-
-        {predictionMarkers.map((marker, idx) => {
-          const alertRadiusMeters = probabilityToRadius(marker.probability);
-          return (
-            <Circle
-              key={`prediction-${idx}`}
-              center={[marker.lat, marker.lng]}
-              radius={alertRadiusMeters}
-              pathOptions={{
-                color: marker.color,
-                fillColor: marker.color,
-                fillOpacity: 0.3,
-              }}
-            >
-              <Popup>
-                <strong>{marker.placeName}</strong>
-                <br />
-                Predicted Risk: {(marker.probability * 100).toFixed(0)}% (
-                {marker.riskLevel})
-              </Popup>
-            </Circle>
-          );
-        })}
-
-        {/* Draw route segments */}
-        {routeSegments.map((seg, idx) => (
-          <Polyline
-            key={`route-seg-${idx}`}
-            positions={seg.latlngs}
-            pathOptions={{ color: seg.color, weight: 6, opacity: 0.7 }}
+  
+            {reports
+              .sort((a, b) => new Date(a.time) - new Date(b.time))
+              .map((report) => (
+                <Marker
+                  key={report.id}
+                  position={[report.location.lat, report.location.lng]}
+                >
+                  <Popup>
+                    <strong>{report.type}</strong>
+                    <br />
+                    {report.status}
+                    <br />
+                    {new Date(report.time).toLocaleString()}
+                  </Popup>
+                </Marker>
+              ))}
+  
+            {predictionMarkers.map((marker, idx) => {
+              const alertRadiusMeters = probabilityToRadius(marker.probability);
+              return (
+                <Circle
+                  key={`prediction-${idx}`}
+                  center={[marker.lat, marker.lng]}
+                  radius={alertRadiusMeters}
+                  pathOptions={{
+                    color: marker.color,
+                    fillColor: marker.color,
+                    fillOpacity: 0.3,
+                  }}
+                >
+                  <Popup>
+                    <strong>{marker.placeName}</strong>
+                    <br />
+                    Predicted Risk: {(marker.probability * 100).toFixed(0)}% (
+                    {marker.riskLevel})
+                  </Popup>
+                </Circle>
+              );
+            })}
+  
+            {routeSegments.map((seg, idx) => (
+              <Polyline
+                key={`route-seg-${idx}`}
+                positions={seg.latlngs}
+                pathOptions={{ color: seg.color, weight: 6, opacity: 0.7 }}
+              />
+            ))}
+          </MapContainer>
+        </div>
+  
+        {/* RIGHT PANEL: destination + buttons */}
+        <div
+          className="destination-panel"
+          style={{
+            flex: "1",                   // 25% of container width
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center"
+          }}
+        >
+          <h3>Find a Route or Hotspot</h3>
+          <input
+            type="text"
+            placeholder="Enter a destination..."
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleAddressSearch(e.target.value);
+            }}
+            style={{ marginBottom: "10px" }}
           />
-        ))}
-      </MapContainer>
+          <button
+            onClick={() => {
+              const input = document.querySelector(".destination-panel input");
+              if (input) handleAddressSearch(input.value);
+            }}
+          >
+            Show Route
+          </button>
+          <button
+            onClick={() => {
+              const input = document.querySelector(".destination-panel input");
+              if (input) handleShowHotspot(input.value);
+            }}
+          >
+            Show Hotspot
+          </button>
+        </div>
+      </div>
+      <ReportForm />
+      <CommunityVoting />
     </div>
+
   );
 }
-
-export default App;
+  export default App;
+  
