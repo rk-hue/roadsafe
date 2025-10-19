@@ -3,12 +3,10 @@ import pandas as pd
 import numpy as np
 
 try:
-    print("🔧 Loading model...")
     model = joblib.load('hotspot_model.pkl')
-    print("✅ Model loaded.")
-    print("Model classes:", model.classes_)
+    print("model loaded")
+    print("classes:", model.classes_)
 
-    # List of all features expected by the model (must match training)
     expected_features = [
         'latitude', 'longitude', 'month', 'hour', 'day', 'severity',
         'weather_3.0', 'weather_4.0', 'weather_5.0', 'weather_6.0', 'weather_7.0',
@@ -19,30 +17,23 @@ try:
     ]
 
     def predict_hotspot(latitude, longitude, hour, dayofweek, month):
-        print("📦 Creating input DataFrame...")
 
-        # Initialize all features to zero or False
         input_dict = {feature: 0 for feature in expected_features}
 
-        # Fill provided values
         input_dict['latitude'] = latitude
         input_dict['longitude'] = longitude
         input_dict['hour'] = hour
-        input_dict['day'] = dayofweek  # rename dayofweek to day
+        input_dict['day'] = dayofweek
         input_dict['month'] = month
-        # 'severity' and other features remain 0 (default)
 
-        # Create DataFrame with correct columns & order
         input_df = pd.DataFrame([input_dict], columns=expected_features)
 
-        print("✅ Input DataFrame:\n", input_df)
+        print("input df:\n", input_df)
 
-        print("🧠 Running prediction...")
         prediction = model.predict(input_df)[0]
         probs = model.predict_proba(input_df)[0]
 
         if len(probs) == 1:
-            # Only one class present in training, handle accordingly
             probability = 1.0 if model.classes_[0] == 1 else 0.0
         else:
             probability = probs[1]
@@ -50,7 +41,6 @@ try:
         return prediction, probability
 
     if __name__ == "__main__":
-        print("🚀 Starting prediction test...")
         lat = 40.0868
         lng = -75.7005
         hour = 18
@@ -59,9 +49,9 @@ try:
 
         pred, prob = predict_hotspot(lat, lng, hour, dayofweek, month)
 
-        print(f"\n🌍 Location: ({lat}, {lng})")
-        print(f"🕒 Time: Hour={hour}, Day={dayofweek}, Month={month}")
-        print(f"🔥 Predicted Hotspot: {'Yes' if pred == 1 else 'No'} (Probability: {prob:.2f})")
+        print(f"\nlocation: ({lat}, {lng})")
+        print(f"time: Hour={hour}, Day={dayofweek}, Month={month}")
+        print(f"hotspot: {'Yes' if pred == 1 else 'No'} (Probability: {prob:.2f})")
 
 except Exception as e:
-    print("❌ An error occurred:", e)
+    print("error:", e)

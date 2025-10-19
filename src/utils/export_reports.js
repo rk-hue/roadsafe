@@ -2,7 +2,6 @@ const admin = require('firebase-admin');
 const fs = require('fs');
 const { Parser } = require('json2csv');
 
-// Path to your service account key JSON file
 const serviceAccount = require('C:\\Users\\rk092\\my-react-app\\roadsafe-wildlife-firebase-adminsdk-fbsvc-363f77d225.json');
 
 admin.initializeApp({
@@ -25,11 +24,11 @@ async function exportReports() {
       return;
     }
 
-    // Export JSON
+    // json
     fs.writeFileSync('reports.json', JSON.stringify(reports, null, 2));
     console.log('Exported reports.json');
 
-    // Export CSV
+    // csv
     const json2csvParser = new Parser();
     const csv = json2csvParser.parse(reports);
     fs.writeFileSync('reports.csv', csv);

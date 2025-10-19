@@ -18,15 +18,15 @@ import haversine from "haversine-distance";
 import "./App.css";
 import CommunityVoting from "./community_voting";
 
-// ---------- Backend base URL (configure via .env) ----------
+
 const BASE_URL = process.env.REACT_APP_API_URL || "https://roadsafe-app.onrender.com";
-// If your predict endpoint isn’t at "/", set REACT_APP_PREDICT_PATH (e.g. "/predict")
+
+
 const PREDICT_PATH = process.env.REACT_APP_PREDICT_PATH || "";
 const PREDICT_URL = `${BASE_URL}${PREDICT_PATH}`;
 console.log("[RoadSafe] Using backend:", PREDICT_URL);
-// -----------------------------------------------------------
 
-// Fix default Leaflet marker icons
+
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: require("leaflet/dist/images/marker-icon-2x.png"),
@@ -34,24 +34,29 @@ L.Icon.Default.mergeOptions({
   shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
 });
 
-// Map probability (0-1) to radius in meters for danger zone
-const minRadiusMeters = 1000; // 1 km minimum radius
-const maxRadiusMeters = 7000; // 7 km max radius
+
+// danger zones
+const minRadiusMeters = 1000;
+const maxRadiusMeters = 7000;
+
 
 function probabilityToRadius(prob) {
   return minRadiusMeters + prob * (maxRadiusMeters - minRadiusMeters);
 }
+
 
 async function getHotspotRisk({ latitude, longitude, hour, month, day }) {
   try {
     const features = prepareFeatures(latitude, longitude);
     console.log("Sending prediction request with features:", features);
 
+
     const response = await fetch(PREDICT_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(features),
     });
+
 
     if (!response.ok) {
       const text = await response.text().catch(() => "");
@@ -60,11 +65,14 @@ async function getHotspotRisk({ latitude, longitude, hour, month, day }) {
       );
     }
 
+
     const data = await response.json();
     console.log("Received prediction response:", data);
 
+
     const prob = data.probability ?? 0;
     let level, color;
+
 
     if (prob > 0.66) {
       level = "High";
@@ -72,10 +80,11 @@ async function getHotspotRisk({ latitude, longitude, hour, month, day }) {
     } else if (prob > 0.33) {
       level = "Medium";
       color = "orange";
-    } else {
+    } else{
       level = "Low";
       color = "blue";
     }
+
 
     return { probability: prob, riskLevel: level, color };
   } catch (error) {
@@ -83,6 +92,7 @@ async function getHotspotRisk({ latitude, longitude, hour, month, day }) {
     return null;
   }
 }
+
 
 function MapClickHandler({ addPredictionMarker }) {
   useMapEvents({
@@ -92,7 +102,8 @@ function MapClickHandler({ addPredictionMarker }) {
       const now = new Date();
       const hour = now.getHours();
       const month = now.getMonth() + 1;
-      const day = now.getDay(); // 0-6 (Sun-Sat)
+      const day = now.getDay();
+
 
       const prediction = await getHotspotRisk({
         latitude: lat,
@@ -101,6 +112,7 @@ function MapClickHandler({ addPredictionMarker }) {
         day,
         month,
       });
+
 
       if (prediction) {
         addPredictionMarker({
@@ -119,14 +131,15 @@ function MapClickHandler({ addPredictionMarker }) {
   return null;
 }
 
+
 function App() {
   const { userLocation, setUserLocation } = useAppContext();
   const [reports, setReports] = useState([]);
   const [predictionMarkers, setPredictionMarkers] = useState([]);
-  const [routeSegments, setRouteSegments] = useState([]); // {latlngs: [], color: ""}
+  const [routeSegments, setRouteSegments] = useState([]);
   const db = getFirestore();
 
-  // Get user location
+
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(
       (position) => {
@@ -141,7 +154,8 @@ function App() {
     );
   }, [setUserLocation]);
 
-  // Fetch reports from Firebase
+
+  // get firebase reports
   useEffect(() => {
     const fetchReports = async () => {
       try {
@@ -158,17 +172,20 @@ function App() {
     fetchReports();
   }, [db]);
 
+
   const addPredictionMarker = (marker) => {
     setPredictionMarkers((prev) => [...prev, marker]);
   };
 
-  // Function to sample route points approximately every sampleDistMeters meters
+
   function sampleRoutePoints(latlngs, sampleDistMeters) {
     if (latlngs.length === 0) return [];
+
 
     let sampled = [latlngs[0]];
     let lastPoint = latlngs[0];
     let accDist = 0;
+
 
     for (let i = 1; i < latlngs.length; i++) {
       const dist = haversine(
@@ -183,6 +200,7 @@ function App() {
       }
     }
 
+
     if (
       sampled.length === 0 ||
       sampled[sampled.length - 1][0] !== latlngs[latlngs.length - 1][0] ||
@@ -191,20 +209,24 @@ function App() {
       sampled.push(latlngs[latlngs.length - 1]);
     }
 
+
     console.log(
       `Sampled ${sampled.length} points from route of length ${latlngs.length}`
     );
 
+
     return sampled;
   }
 
-  // Handle address search -> fetch route -> color route segments by danger zones
+
   async function handleAddressSearch(address) {
     if (!userLocation) return alert("User location not set yet");
+
 
     const geocodeUrl = `https://api.openrouteservice.org/geocode/search?api_key=eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjNhM2Y5ZmNkNWM0MzQ0Y2I5M2QxMWMzZWUyNDNhYzIzIiwiaCI6Im11cm11cjY0In0=&text=${encodeURIComponent(
       address
     )}&size=1`;
+
 
     const geocodeResp = await fetch(geocodeUrl);
     if (!geocodeResp.ok)
@@ -217,13 +239,17 @@ function App() {
     )
       return alert("No results found for the address.");
 
+
     const destCoords = geocodeData.features[0].geometry.coordinates; // [lng, lat]
 
+
     const directionsUrl = `https://api.openrouteservice.org/v2/directions/driving-car?api_key=eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjNhM2Y5ZmNkNWM0MzQ0Y2I5M2QxMWMzZWUyNDNhYzIzIiwiaCI6Im11cm11cjY0In0=&start=${userLocation.lng},${userLocation.lat}&end=${destCoords[0]},${destCoords[1]}`;
+
 
     const directionsResp = await fetch(directionsUrl);
     if (!directionsResp.ok) return alert("Failed to get route. Try again later.");
     const directionsData = await directionsResp.json();
+
 
     if (
       !directionsData.features ||
@@ -232,17 +258,21 @@ function App() {
     )
       return alert("No route found.");
 
+
     const routeLatLngs = directionsData.features[0].geometry.coordinates.map(
       (c) => [c[1], c[0]]
     );
 
+
     const SAMPLE_DISTANCE_M = 500;
     const sampledPoints = sampleRoutePoints(routeLatLngs, SAMPLE_DISTANCE_M);
+
 
     const now = new Date();
     const hour = now.getHours();
     const month = now.getMonth() + 1;
     const day = now.getDay();
+
 
     const predictions = await Promise.all(
       sampledPoints.map(async ([lat, lng]) => {
@@ -257,6 +287,7 @@ function App() {
       })
     );
 
+
     console.log("Sampled points and predictions:");
     sampledPoints.forEach((pt, i) => {
       console.log(
@@ -264,8 +295,10 @@ function App() {
       );
     });
 
+
     const segments = [];
     const colorsPriority = ["blue", "orange", "red"];
+
 
     function getColorForProb(prob) {
       if (prob > 0.66) return "red";
@@ -273,17 +306,21 @@ function App() {
       return "blue";
     }
 
+
     for (let i = 0; i < sampledPoints.length - 1; i++) {
       const startProb = predictions[i].probability;
       const endProb = predictions[i + 1].probability;
 
+
       const startColor = getColorForProb(startProb);
       const endColor = getColorForProb(endProb);
+
 
       const segmentColor =
         colorsPriority.indexOf(startColor) > colorsPriority.indexOf(endColor)
           ? startColor
           : endColor;
+
 
       segments.push({
         latlngs: [sampledPoints[i], sampledPoints[i + 1]],
@@ -291,16 +328,19 @@ function App() {
       });
     }
 
+
     setRouteSegments(segments);
   }
 
-  // New function to show a single hotspot marker circle at the geocoded address
+
   async function handleShowHotspot(address) {
     if (!userLocation) return alert("User location not set yet");
+
 
     const geocodeUrl = `https://api.openrouteservice.org/geocode/search?api_key=eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjNhM2Y5ZmNkNWM0MzQ0Y2I5M2QxMWMzZWUyNDNhYzIzIiwiaCI6Im11cm11cjY0In0=&text=${encodeURIComponent(
       address
     )}&size=1`;
+
 
     const geocodeResp = await fetch(geocodeUrl);
     if (!geocodeResp.ok)
@@ -313,14 +353,17 @@ function App() {
     )
       return alert("No results found for the address.");
 
-    const coords = geocodeData.features[0].geometry.coordinates; // [lng, lat]
+
+    const coords = geocodeData.features[0].geometry.coordinates;
     const lat = coords[1];
     const lng = coords[0];
+
 
     const now = new Date();
     const hour = now.getHours();
     const month = now.getMonth() + 1;
     const day = now.getDay();
+
 
     const prediction = await getHotspotRisk({
       latitude: lat,
@@ -330,15 +373,16 @@ function App() {
       day,
     });
 
+
     if (!prediction) {
       alert("Failed to get hotspot prediction for this location.");
       return;
     }
 
-    // Clear existing route segments (if any) when showing hotspot
+
     setRouteSegments([]);
 
-    // Add the prediction marker circle with placeName for popup
+
     addPredictionMarker({
       lat,
       lng,
@@ -349,51 +393,55 @@ function App() {
     });
   }
 
+
   if (!userLocation) return <p>Loading your location...</p>;
+
 
   return (
     <div>
       <h1>RoadSafe Wildlife</h1>
       <p>Protecting animals. Saving lives. One road at a time.</p>
       <h2>Real-time Crash Prediction</h2>
-  
-      {/* Flex container: left = map, right = controls */}
+ 
       <div
+        className="app-layout"
         style={{
           display: "flex",
-          width: "75vw",           // 75% of the screen width
-          height: "400px",         // fixed height for the container
+          width: "75vw",
+          height: "400px",
           marginTop: "20px",
           marginLeft: "auto",
-          marginRight: "auto",     // center the container
-          marginBottom: "40px"
+          marginRight: "auto",
+          marginBottom: "40px",
         }}
       >
-        {/* LEFT PANEL: map */}
+        {/* map panel */}
         <div
+          className="map-panel"
           style={{
-            flex: "3",             // 75% of container width (3 / 4)
+            flex: "3",
             border: "1px solid #ccc",
             borderRadius: "8px",
             marginRight: "10px",
+            overflow: "hidden",
           }}
         >
           <MapContainer
             center={[userLocation.lat, userLocation.lng]}
             zoom={8}
-            style={{ height: "100%", width: "100%" }} // fill left panel completely
+            style={{ height: "100%", width: "100%" }}
           >
             <TileLayer
               attribution="&copy; OpenStreetMap contributors"
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
-  
+ 
             <MapClickHandler addPredictionMarker={addPredictionMarker} />
-  
+ 
             <Marker position={[userLocation.lat, userLocation.lng]}>
               <Popup>You are here</Popup>
             </Marker>
-  
+ 
             {reports
               .sort((a, b) => new Date(a.time) - new Date(b.time))
               .map((report) => (
@@ -410,7 +458,7 @@ function App() {
                   </Popup>
                 </Marker>
               ))}
-  
+ 
             {predictionMarkers.map((marker, idx) => {
               const alertRadiusMeters = probabilityToRadius(marker.probability);
               const colorMap = {
@@ -438,7 +486,7 @@ function App() {
                 </Circle>
               );
             })}
-  
+ 
             {routeSegments.map((seg, idx) => (
               <Polyline
                 key={`route-seg-${idx}`}
@@ -448,12 +496,12 @@ function App() {
             ))}
           </MapContainer>
         </div>
-  
-        {/* RIGHT PANEL: destination + buttons */}
+ 
+        {/* right panel (input address) */}
         <div
           className="destination-panel"
           style={{
-            flex: "1",                   // 25% of container width
+            flex: "1",
             display: "flex",
             flexDirection: "column",
             justifyContent: "center",
@@ -491,7 +539,9 @@ function App() {
       <CommunityVoting />
     </div>
 
+
   );
 }
   export default App;
-  
+ 
+

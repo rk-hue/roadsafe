@@ -4,7 +4,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
 
 # === Load feature-engineered dataset ===
-print("📥 Loading features for training...")
+print("Loading features for training...")
 df = pd.read_csv("features_for_training.csv")
 
 # === Create binary target 'hotspot' from 'severity' ===
@@ -53,7 +53,7 @@ params = {
 }
 
 # === Train model with early stopping ===
-print("🚀 Training LightGBM model...")
+print("Training LightGBM model...")
 model = lgb.train(
     params,
     train_data,
@@ -69,9 +69,9 @@ y_pred_prob = model.predict(X_test)
 y_pred = (y_pred_prob >= 0.5).astype(int)
 
 # === Evaluation ===
-print("🧾 Classification report:")
+print("Classification report:")
 print(classification_report(y_test, y_pred))
 
 # === Save model to file ===
 model.save_model('roadsafe_lightgbm_model.txt')
-print("💾 Model saved to roadsafe_lightgbm_model.txt")
+print("Model saved to roadsafe_lightgbm_model.txt")

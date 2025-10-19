@@ -8,7 +8,6 @@ from sklearn.impute import SimpleImputer
 import joblib
 from sklearn.neighbors import BallTree
 
-# Constants
 PROXIMITY_RADIUS_METERS = 100  # proximity threshold for hotspots
 HOTSPOT_THRESHOLD = 2  # minimum crashes at a location to be hotspot
 

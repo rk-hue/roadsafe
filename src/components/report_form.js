@@ -3,12 +3,12 @@ import { useAppContext } from '../context/AppContext';
 import { db } from '../services/firebase';
 import { collection, addDoc } from 'firebase/firestore';
 
-const WEATHER_API_KEY = '6862ae0671e10a322eefafcd55b3034b'; // Replace with your actual key
+const WEATHER_API_KEY = '6862ae0671e10a322eefafcd55b3034b';
 
 const ReportForm = () => {
   const { userLocation } = useAppContext();
   const [animalType, setAnimalType] = useState('');
-  const [status, setStatus] = useState(''); // 'alive' or 'dead'
+  const [status, setStatus] = useState('');
 
   const handleSubmit = async () => {
     if (!animalType || !userLocation) {
@@ -17,7 +17,6 @@ const ReportForm = () => {
     }
 
     try {
-      // 1. Fetch weather data
       const weatherRes = await fetch(
         `https://api.openweathermap.org/data/2.5/weather?lat=${userLocation.lat}&lon=${userLocation.lng}&appid=${WEATHER_API_KEY}&units=imperial`
       );
@@ -29,10 +28,9 @@ const ReportForm = () => {
         description: weatherData.weather?.[0]?.description,
       };
 
-      // 2. Build the report
       const now = new Date();
-      const jsDay = now.getDay(); // 0-6
-      const weekday = jsDay === 0 ? 7 : jsDay; // Convert Sunday (0) → 7
+      const jsDay = now.getDay();
+      const weekday = jsDay === 0 ? 7 : jsDay;
 
       const report = {
         type: animalType,
@@ -47,19 +45,17 @@ const ReportForm = () => {
 
       console.log('Submitting report:', report);
 
-      // 3. Submit to Firestore
       const targetCollection = status === 'dead' ? 'deadReports' : 'aliveReports';
       await addDoc(collection(db, targetCollection), report);
 
-      alert(`✅ Report submitted to "${targetCollection}" successfully!`);
-      console.log(`✅ Report saved to Firestore collection "${targetCollection}".`);
+      alert(`Report submitted to "${targetCollection}" successfully!`);
+      console.log(`Report saved to Firestore collection "${targetCollection}".`);
 
-      // 4. Reset form
       setAnimalType('');
       setStatus('alive');
     } catch (e) {
-      console.error('❌ Error adding document:', e.message || e);
-      alert('❌ Error submitting report. Check console for details.');
+      console.error('Error adding document:', e.message || e);
+      alert('Error submitting report. Check console for details.');
     }
   };
 

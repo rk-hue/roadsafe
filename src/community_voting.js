@@ -3,7 +3,7 @@ import { db } from "./services/firebase";
 import { collection, addDoc, doc, setDoc, increment, onSnapshot } from "firebase/firestore";
 import "./App.css";
 
-const PETITION_GOAL = 1000; // how many petitions needed to mark "eligible"
+const PETITION_GOAL = 1000;
 
 const toTitleCase = (str) =>
   str.replace(/\w\S*/g, (txt) =>
@@ -17,13 +17,13 @@ const CommunityVoting = () => {
     overpasses: false,
   });
   const [area, setArea] = useState("");
-  const [counts, setCounts] = useState({}); // { "york county": 90, "lancaster": 40 }
+  const [counts, setCounts] = useState({});
 
   useEffect(() => {
     const q = collection(db, "petitionCounts");
     const unsubscribe = onSnapshot(q, (snapshot) => {
       if (snapshot.empty) {
-        setCounts({}); // clear everything if no data
+        setCounts({});
         return;
       }
 
@@ -56,24 +56,23 @@ const CommunityVoting = () => {
     };
 
     try {
-      // Add the individual petition
+      
       await addDoc(collection(db, "communityPetitions"), petition);
 
-      // Increment the petition count
       const areaRef = doc(db, "petitionCounts", normalizedArea);
       await setDoc(areaRef, { count: increment(1) }, { merge: true });
 
-      alert("✅ Petition submitted!");
+      alert("Petition submitted!");
     } catch (err) {
       console.error(err);
-      alert("❌ Error submitting petition.");
+      alert("Error submitting petition.");
     }
   };
 
   return (
     <div className="community-action-wrapper" style={{ display: "flex", gap: "20px" }}>
       
-      {/* LEFT: Petition Form */}
+      {/* left panel (petition form) */}
       <div className="community-action-container" style={{ flex: 1 }}>
         <h2>Community Action Tools</h2>
         <p>
@@ -111,11 +110,11 @@ const CommunityVoting = () => {
         </div>
       </div>
 
-      {/* RIGHT: Leaderboard */}
+      {/* right panel (leaderboard) */}
       <div className="petition-leaderboard" style={{ flex: 1, background: "#f8f8f8", padding: "20px", borderRadius: "12px" }}>
         <h3>Petition Progress</h3>
         {Object.entries(counts)
-          .sort((a, b) => b[1] - a[1]) // sort by most petitions first
+          .sort((a, b) => b[1] - a[1])
           .map(([county, count]) => {
             const remaining = Math.max(PETITION_GOAL - count, 0);
             const percent = Math.min((count / PETITION_GOAL) * 100, 100);

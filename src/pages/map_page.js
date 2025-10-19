@@ -3,7 +3,6 @@ import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
-// Fix default marker icon issue
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
@@ -16,7 +15,6 @@ export default function MapPage() {
   const [reports, setReports] = useState([]);
 
   useEffect(() => {
-    // Get user's location
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const { latitude, longitude } = position.coords;
@@ -24,12 +22,10 @@ export default function MapPage() {
       },
       (error) => {
         console.error("Location error:", error);
-        // Default to somewhere central in the U.S.
         setUserLocation({ lat: 39.5, lng: -98.35 });
       }
     );
 
-    // Simulate loading reports (replace with Firebase later)
     setReports([
       {
         type: 'deer',
