@@ -399,7 +399,7 @@ function App() {
 
   return (
     <div>
-      <h1>RoadSafe Wildlife</h1>
+      <h1>RoadSafe</h1>
       <p>Protecting animals. Saving lives. One road at a time.</p>
       <h2>Real-time Crash Prediction</h2>
  
