@@ -393,9 +393,7 @@ function App() {
     });
   }
 
-
   if (!userLocation) return <p>Loading your location...</p>;
-
 
   return (
     <div>
@@ -544,4 +542,3 @@ function App() {
 }
   export default App;
  
-
