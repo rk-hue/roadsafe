@@ -19,12 +19,18 @@ import "./App.css";
 import CommunityVoting from "./community_voting";
 
 
+
+
 const BASE_URL = process.env.REACT_APP_API_URL || "https://roadsafe-app.onrender.com";
+
+
 
 
 const PREDICT_PATH = process.env.REACT_APP_PREDICT_PATH || "";
 const PREDICT_URL = `${BASE_URL}${PREDICT_PATH}`;
 console.log("[RoadSafe] Using backend:", PREDICT_URL);
+
+
 
 
 delete L.Icon.Default.prototype._getIconUrl;
@@ -35,14 +41,20 @@ L.Icon.Default.mergeOptions({
 });
 
 
+
+
 // danger zones
 const minRadiusMeters = 1000;
 const maxRadiusMeters = 7000;
 
 
+
+
 function probabilityToRadius(prob) {
   return minRadiusMeters + prob * (maxRadiusMeters - minRadiusMeters);
 }
+
+
 
 
 async function getHotspotRisk({ latitude, longitude, hour, month, day }) {
@@ -51,11 +63,15 @@ async function getHotspotRisk({ latitude, longitude, hour, month, day }) {
     console.log("Sending prediction request with features:", features);
 
 
+
+
     const response = await fetch(PREDICT_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(features),
     });
+
+
 
 
     if (!response.ok) {
@@ -66,12 +82,18 @@ async function getHotspotRisk({ latitude, longitude, hour, month, day }) {
     }
 
 
+
+
     const data = await response.json();
     console.log("Received prediction response:", data);
 
 
+
+
     const prob = data.probability ?? 0;
     let level, color;
+
+
 
 
     if (prob > 0.66) {
@@ -86,12 +108,16 @@ async function getHotspotRisk({ latitude, longitude, hour, month, day }) {
     }
 
 
+
+
     return { probability: prob, riskLevel: level, color };
   } catch (error) {
     console.error("Error fetching prediction:", error);
     return null;
   }
 }
+
+
 
 
 function MapClickHandler({ addPredictionMarker }) {
@@ -105,6 +131,8 @@ function MapClickHandler({ addPredictionMarker }) {
       const day = now.getDay();
 
 
+
+
       const prediction = await getHotspotRisk({
         latitude: lat,
         longitude: lng,
@@ -112,6 +140,8 @@ function MapClickHandler({ addPredictionMarker }) {
         day,
         month,
       });
+
+
 
 
       if (prediction) {
@@ -132,12 +162,16 @@ function MapClickHandler({ addPredictionMarker }) {
 }
 
 
+
+
 function App() {
   const { userLocation, setUserLocation } = useAppContext();
   const [reports, setReports] = useState([]);
   const [predictionMarkers, setPredictionMarkers] = useState([]);
   const [routeSegments, setRouteSegments] = useState([]);
   const db = getFirestore();
+
+
 
 
   useEffect(() => {
@@ -153,6 +187,8 @@ function App() {
       }
     );
   }, [setUserLocation]);
+
+
 
 
   // get firebase reports
@@ -173,18 +209,26 @@ function App() {
   }, [db]);
 
 
+
+
   const addPredictionMarker = (marker) => {
     setPredictionMarkers((prev) => [...prev, marker]);
   };
+
+
 
 
   function sampleRoutePoints(latlngs, sampleDistMeters) {
     if (latlngs.length === 0) return [];
 
 
+
+
     let sampled = [latlngs[0]];
     let lastPoint = latlngs[0];
     let accDist = 0;
+
+
 
 
     for (let i = 1; i < latlngs.length; i++) {
@@ -201,6 +245,8 @@ function App() {
     }
 
 
+
+
     if (
       sampled.length === 0 ||
       sampled[sampled.length - 1][0] !== latlngs[latlngs.length - 1][0] ||
@@ -210,22 +256,32 @@ function App() {
     }
 
 
+
+
     console.log(
       `Sampled ${sampled.length} points from route of length ${latlngs.length}`
     );
+
+
 
 
     return sampled;
   }
 
 
+
+
   async function handleAddressSearch(address) {
     if (!userLocation) return alert("User location not set yet");
+
+
 
 
     const geocodeUrl = `https://api.openrouteservice.org/geocode/search?api_key=eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjNhM2Y5ZmNkNWM0MzQ0Y2I5M2QxMWMzZWUyNDNhYzIzIiwiaCI6Im11cm11cjY0In0=&text=${encodeURIComponent(
       address
     )}&size=1`;
+
+
 
 
     const geocodeResp = await fetch(geocodeUrl);
@@ -240,15 +296,23 @@ function App() {
       return alert("No results found for the address.");
 
 
+
+
     const destCoords = geocodeData.features[0].geometry.coordinates; // [lng, lat]
+
+
 
 
     const directionsUrl = `https://api.openrouteservice.org/v2/directions/driving-car?api_key=eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjNhM2Y5ZmNkNWM0MzQ0Y2I5M2QxMWMzZWUyNDNhYzIzIiwiaCI6Im11cm11cjY0In0=&start=${userLocation.lng},${userLocation.lat}&end=${destCoords[0]},${destCoords[1]}`;
 
 
+
+
     const directionsResp = await fetch(directionsUrl);
     if (!directionsResp.ok) return alert("Failed to get route. Try again later.");
     const directionsData = await directionsResp.json();
+
+
 
 
     if (
@@ -259,19 +323,27 @@ function App() {
       return alert("No route found.");
 
 
+
+
     const routeLatLngs = directionsData.features[0].geometry.coordinates.map(
       (c) => [c[1], c[0]]
     );
+
+
 
 
     const SAMPLE_DISTANCE_M = 500;
     const sampledPoints = sampleRoutePoints(routeLatLngs, SAMPLE_DISTANCE_M);
 
 
+
+
     const now = new Date();
     const hour = now.getHours();
     const month = now.getMonth() + 1;
     const day = now.getDay();
+
+
 
 
     const predictions = await Promise.all(
@@ -288,6 +360,8 @@ function App() {
     );
 
 
+
+
     console.log("Sampled points and predictions:");
     sampledPoints.forEach((pt, i) => {
       console.log(
@@ -296,8 +370,12 @@ function App() {
     });
 
 
+
+
     const segments = [];
     const colorsPriority = ["blue", "orange", "red"];
+
+
 
 
     function getColorForProb(prob) {
@@ -307,19 +385,27 @@ function App() {
     }
 
 
+
+
     for (let i = 0; i < sampledPoints.length - 1; i++) {
       const startProb = predictions[i].probability;
       const endProb = predictions[i + 1].probability;
+
+
 
 
       const startColor = getColorForProb(startProb);
       const endColor = getColorForProb(endProb);
 
 
+
+
       const segmentColor =
         colorsPriority.indexOf(startColor) > colorsPriority.indexOf(endColor)
           ? startColor
           : endColor;
+
+
 
 
       segments.push({
@@ -329,17 +415,25 @@ function App() {
     }
 
 
+
+
     setRouteSegments(segments);
   }
+
+
 
 
   async function handleShowHotspot(address) {
     if (!userLocation) return alert("User location not set yet");
 
 
+
+
     const geocodeUrl = `https://api.openrouteservice.org/geocode/search?api_key=eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjNhM2Y5ZmNkNWM0MzQ0Y2I5M2QxMWMzZWUyNDNhYzIzIiwiaCI6Im11cm11cjY0In0=&text=${encodeURIComponent(
       address
     )}&size=1`;
+
+
 
 
     const geocodeResp = await fetch(geocodeUrl);
@@ -354,15 +448,21 @@ function App() {
       return alert("No results found for the address.");
 
 
+
+
     const coords = geocodeData.features[0].geometry.coordinates;
     const lat = coords[1];
     const lng = coords[0];
+
+
 
 
     const now = new Date();
     const hour = now.getHours();
     const month = now.getMonth() + 1;
     const day = now.getDay();
+
+
 
 
     const prediction = await getHotspotRisk({
@@ -374,13 +474,19 @@ function App() {
     });
 
 
+
+
     if (!prediction) {
       alert("Failed to get hotspot prediction for this location.");
       return;
     }
 
 
+
+
     setRouteSegments([]);
+
+
 
 
     addPredictionMarker({
@@ -393,7 +499,9 @@ function App() {
     });
   }
 
+
   if (!userLocation) return <p>Loading your location...</p>;
+
 
   return (
     <div>
@@ -538,7 +646,8 @@ function App() {
     </div>
 
 
+
+
   );
 }
   export default App;
- 

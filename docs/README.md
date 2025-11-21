@@ -1,70 +1,121 @@
-# Getting Started with Create React App
+# RoadSafe
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+RoadSafe Wildlife is a Progressive Web App (PWA) designed to reduce wildlife-vehicle collisions by enabling users to report wildlife sightings, hazards, and roadkill using real-time GPS tagging. The app uses machine learning to predict high-risk crossing areas and alerts drivers, communities, and local agencies. 
 
-## Available Scripts
+[Check it out here!](https://road-safe-app.netlify.app/).
 
-In the project directory, you can run:
 
-### `npm start`
+## Tech Used
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### Third-Party Sources
+* Firebase 
+* PennDOT 
+* Render 
+* OpenRouteService 
+* Netlify 
+* Leaflet
+* GitHub
+* Cursor IDE
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### Libraries
+* scikit-learn
+* joblib
+* numpy
+* pandas
+* matplotlib
 
-### `npm test`
+## Lessons Learned
+* Handling geolocation permissions and accuracy on mobile devices
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+* Integrating ML predictions into a live React map UI
 
-### `npm run build`
+* Managing real‑time listeners and Firestore document structure
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+* Designing consistent UI/UX for safety‑focused apps
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+* Building installable PWAs with offline caching
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+* Connecting Python‑trained ML models to a JavaScript frontend
+ 
+## Features
 
-### `npm run eject`
+### Reporting
+* Create wildlife hazard reports with automatic geolocation
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+* Log sightings, near‑misses, or roadkill
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+* Upload optional images
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+* View timestamp, species type, and user notes
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+### Interactive Map
+* Real‑time community reports
 
-## Learn More
+* Hotspot overlays based on ML predictions
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+* Clickable markers to view report details
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### AI Hotspot Prediction
+* Random Forest classifier trained on crash datasets
 
-### Code Splitting
+* Uses environmental, spatial, and proximity‑based features
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+* Output displayed visually on the map
 
-### Analyzing the Bundle Size
+### Infrastructure
+* Firebase for real‑time database
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+* Firebase Hosting + Storage
 
-### Making a Progressive Web App
+* Python ML pipeline with joblib‑serialized models
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+* Dataset used: features_for_training.csv
 
-### Advanced Configuration
+* Model files: hotspot_model.joblib, imputer.joblib
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+### UI
+* Sage green and white color scheme
+* Consistent layout with panels, buttons, and sectioned design
 
-### Deployment
+## Using RoadSafe
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+### 1. Access the App
+* Open [RoadSafe](https://road-safe-app.netlify.app/) on your phone or computer
 
-### `npm run build` fails to minify
+* Allow location permissions so the app can tag your current GPS location
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+### 2. View the Interactive Map
+* Tap any place on the map to report the risk level of wildlife collision in that area
+
+* Enter a destination in the textbox to either:
+    * See a risk-colored route to that destination
+
+    * See a hotspot risk marker for that specific area
+
+* Tap on a marker to open the risk details
+
+### 3. Create a Wilflide Report
+* Select the animal type
+
+* Select the animal status (dead or alive)
+
+* Submit the report, it will instantly be saved in the database
+
+### 4. Create a Petition Report
+* Select one or more specific things you would liek to petition for
+
+* Enter the name of the county being petitioned for
+
+* Submit the petition, it will instantly be saved in the database
+
+## Screenshots
+
+### Interactive Map
+![Map](map.png)
+
+### Wildlife Reporting
+![Reporting](wildlife_report.png)
+
+### Area Petitions
+![Petition](petition.png)
+

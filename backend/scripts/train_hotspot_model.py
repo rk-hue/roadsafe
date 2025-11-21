@@ -13,7 +13,7 @@ HOTSPOT_THRESHOLD = 2
 
 def main():
     print("loading features_for_training.csv")
-    features = pd.read_csv("features_for_training.csv", index_col=False)
+    features = pd.read_csv("backend/data/features_for_training.csv", index_col=False)
     
     print("Columns in features:", list(features.columns))
     print("First 5 rows of features:")
@@ -23,7 +23,7 @@ def main():
     print(f"Longitude min/max in features: {features['longitude'].min()} / {features['longitude'].max()}")
 
     print("loading deer_crashes_final.csv")
-    reports = pd.read_csv("deer_crashes_final.csv")
+    reports = pd.read_csv("backend/data/deer_crashes_final.csv")
 
     missing_lat = reports['latitude'].isnull().sum()
     missing_lng = reports['longitude'].isnull().sum()
